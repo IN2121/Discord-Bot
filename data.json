@@ -1,15 +1,25 @@
 {
-    "averagePrice": 4.0,
-    "offers": 1,
+    "averagePrice": 200000005.25,
+    "offers": 3,
     "userData": {
+        "328726215647297537": {
+            "offers": [
+                799999999.0,
+                8.0
+            ],
+            "averageAskingPrice": 400000003.5,
+            "venmo": 1,
+            "zelle": 1,
+            "grubhubRequests": 1
+        },
         "521004149844869151": {
             "offers": [
-                4.0
+                7.0
             ],
-            "averageAskingPrice": 4.0,
-            "venmo": 0,
-            "zelle": 0,
-            "grubhubRequests": 1
+            "averageAskingPrice": 7.0,
+            "venmo": 1,
+            "zelle": 1,
+            "grubhubRequests": 0
         }
     }
 }

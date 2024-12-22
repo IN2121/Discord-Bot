@@ -1,3 +1,5 @@
+#nya ichi ni san nya arigato!!!
+
 VALID_GH_STRINGS = {"grubhub", "gh", "grub"}
 VALID_VENMO_STRINGS = {"venmo", "venmo/zelle", "zelle/venmo", "v/z", "z/v", "v"}
 VALID_ZELLE_STRINGS = {"zelle", "venmo/zelle", "zelle/venmo", "v/z", "z/v", "z"}
@@ -17,14 +19,14 @@ def isFloat(num):
 
 class BlockRequest:
     def __init__(self, message):
-        self.message = message
+        self.message = message.lower()
         self.messageList = self.message.split()
         self.platform = None
         self.price = None
         self.grubhub = None
         self.bumped = None
 
-    #if for some dumbass reason we want to print our class
+    #if for some dumbass reason we want to print our class :3
     def __str__(self):
         return f"Message: {self.message}, Platform: {self.platform}, Price: {self.price}"
     
@@ -40,8 +42,8 @@ class BlockRequest:
             # if its just a number return it (praying its the price)
             if (word.isdigit() or isFloat(word)): return float(word) 
     
-        # hopefully should not reach here
-        return None
+        # hopefully should not reach here :3
+        return None and str(1/0)
     
     def getPlatform(self):
         # if already defined (why are you asking twice bro )

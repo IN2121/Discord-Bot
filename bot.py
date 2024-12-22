@@ -1,6 +1,7 @@
 import discord
 # import parser
 import json
+import pprint
 import os
 from parser import BlockRequest
 from dotenv import load_dotenv
@@ -35,8 +36,8 @@ OFFERS = "offers"
 AVG_ASK_PRICE = "averageAskingPrice"
 GH_REQS = "grubhubRequests"
 
-
-DEFAULT_USER_DATA = {OFFERS: [], AVG_ASK_PRICE: 0.0, VENMO: 0, ZELLE: 0, GH_REQS: 0}
+def get_new_user_default():
+    return {OFFERS: [], AVG_ASK_PRICE: 0.0, VENMO: 0, ZELLE: 0, GH_REQS: 0}
 
 
 # load data from data.json
@@ -69,7 +70,7 @@ def saveData():
     
 def updateUserData(userID, blockRequest):
     if (userID not in userData):
-        userData[userID] = DEFAULT_USER_DATA
+        userData[userID] = get_new_user_default()
     
     offer = blockRequest.getPrice()
     platform = blockRequest.getPlatform()
@@ -123,6 +124,8 @@ async def on_message(message):
         calculateAveragePrice(parsedMessage.getPrice())
         updateUserData(str(message.author.id), parsedMessage)
         saveData()
+        print(f"Price is: {parsedMessage.getPrice()}")
+        print(f"Platform is: {parsedMessage.getPlatform()}")
     
 
 # Run the bot
