@@ -1,7 +1,8 @@
 import discord
-import parser
+# import parser
 import json
 import os
+from parser import BlockRequest
 from dotenv import load_dotenv
 
 # loads the enviornment file that stores the bot API key (very secret)
@@ -24,11 +25,24 @@ client = discord.Client(intents=intents)
 # (things we save in a file and want to track) 
 averagePrice = 0
 offers = 0
+# initialize dictionary that stores all individual user requests
+userData = dict()
+
+VENMO = "venmo"
+ZELLE = "zelle"
+BOTH = "venmo/zelle"
+OFFERS = "offers"
+AVG_ASK_PRICE = "averageAskingPrice"
+GH_REQS = "grubhubRequests"
+
+
+DEFAULT_USER_DATA = {OFFERS: [], AVG_ASK_PRICE: 0.0, VENMO: 0, ZELLE: 0, GH_REQS: 0}
+
 
 # load data from data.json
 def loadData():
     # use the global variables, don't make new ones
-    global averagePrice, offers
+    global averagePrice, offers, userData
     if (os.path.exists("data.json")):
         with open("data.json", "r") as f:
             # load the data from json
@@ -38,6 +52,7 @@ def loadData():
             # whatever was stored in the file 
             averagePrice = data.get("averagePrice", 0)
             offers = data.get("offers", 0)
+            userData = data.get("userData", {})
 
 # save the data within the file
 def saveData():
@@ -46,22 +61,50 @@ def saveData():
     # (dump takes care of the conversion)
     data = {
         "averagePrice": averagePrice,
-        "offers": offers
+        "offers": offers,
+        "userData": userData
     }
     with open("data.json", "w") as f:
         json.dump(data, f, indent=4)
+    
+def updateUserData(userID, blockRequest):
+    if (userID not in userData):
+        userData[userID] = DEFAULT_USER_DATA
+    
+    offer = blockRequest.getPrice()
+    platform = blockRequest.getPlatform()
+    gh = blockRequest.isGH()
+    userInfo = userData[userID]
+
+
+    userInfo[OFFERS].append(offer)
+    if (gh): userInfo[GH_REQS] += 1
+    if (platform == VENMO): userInfo[VENMO] += 1
+    if (platform == ZELLE): userInfo[ZELLE] += 1
+    if (platform == BOTH): 
+        userInfo[VENMO] += 1
+        userInfo[ZELLE] += 1
+
+    if (userInfo[AVG_ASK_PRICE] == 0): 
+        userInfo[AVG_ASK_PRICE] = offer
+    else:
+        userInfo[AVG_ASK_PRICE] = (userInfo[AVG_ASK_PRICE] + offer) / 2
+
+    
 
 # just calculates new average price given a 
-# new price ask (math is surely trivial :3 (I had to look it up NAHH >_<))
+# new price ask (math is surely trivial :3 (I had to look it up >_<))
 def calculateAveragePrice(price):
     global averagePrice, offers
     offers += 1
-    if (offers == 1): averagePrice = price
+    if (offers == 1): 
+        averagePrice = price
+        return
     averagePrice = (averagePrice + price) / 2
    
 # essentially a wrapper malloc call idk why I did this seems formal though
 def newBlockRequest(message):
-    return parser.BlockRequest(message)
+    return BlockRequest(message)
 
 
 # do this when the bot is loaded
@@ -77,13 +120,9 @@ async def on_message(message):
 
     if (message.channel.name == "block-market😋"):
         parsedMessage = newBlockRequest(message.content)
-        price : int = parsedMessage.getPrice()
-        platform : str  = parsedMessage.getPlatform()
-        GH : bool = parsedMessage.isGH()
-        calculateAveragePrice(price)
+        calculateAveragePrice(parsedMessage.getPrice())
+        updateUserData(str(message.author.id), parsedMessage)
         saveData()
-        print(f"Price is {price}, platform is {platform}, grubhub is {GH}")
-        print(f"New average price is {averagePrice}")
     
 
 # Run the bot

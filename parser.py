@@ -2,9 +2,18 @@ VALID_GH_STRINGS = {"grubhub", "gh", "grub"}
 VALID_VENMO_STRINGS = {"venmo", "venmo/zelle", "zelle/venmo", "v/z", "z/v", "v"}
 VALID_ZELLE_STRINGS = {"zelle", "venmo/zelle", "zelle/venmo", "v/z", "z/v", "z"}
 
+
 VENMO = "venmo"
 ZELLE = "zelle"
 BOTH = "venmo/zelle"
+
+def isFloat(num):
+    # string to float function, catches error if it does not work
+    try:
+        float(num)
+        return True
+    except ValueError:
+        return False
 
 class BlockRequest:
     def __init__(self, message):
@@ -27,9 +36,9 @@ class BlockRequest:
         # havent gotten the price yet, gotta go throgh message and find it
         for word in self.messageList:
             # if there is a $ in the price, replace with empty, and return the int
-            if ("$" in word): return int(word.replace("$", ""))
+            if ("$" in word): return float(word.replace("$", ""))
             # if its just a number return it (praying its the price)
-            if (word.isdigit()): return int(word) 
+            if (word.isdigit() or isFloat(word)): return float(word) 
     
         # hopefully should not reach here
         return None
@@ -58,12 +67,7 @@ class BlockRequest:
         for word in self.messageList:
             if (word in VALID_GH_STRINGS): 
                 self.grubhub = True
-                found = True
                 break
         return self.grubhub
         
 
-
-
-
-        
