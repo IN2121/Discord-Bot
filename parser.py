@@ -12,64 +12,83 @@ BOTH = "venmo/zelle"
 def isFloat(num):
     # string to float function, catches error if it does not work
     try:
-        float(num)
-        return True
+        return float(num)
     except ValueError:
-        return False
+        return None
+    
+def newBlockRequestData():
+    return {"platform": None, "price": None, "bumped": False, "grubhub": None}
+
+def makeStringNice(str):
+    return str.lower().strip()
+
+def getDollarAmount(str):
+    val = isFloat(str.replace("$", ""))
+    if (val != None): return val
+    else: return None
+
+def representsPlatform(str):
+    str = makeStringNice(str)
+    # if either platform, return BOTH
+    if (str in VALID_VENMO_STRINGS and 
+        str in VALID_ZELLE_STRINGS): return BOTH
+            
+    #if its just in a single one, return just that one
+    if (str in VALID_ZELLE_STRINGS): return ZELLE
+    if (str in VALID_VENMO_STRINGS): return VENMO
+    return None
+
+def isGH(str):
+    return (makeStringNice(str) in VALID_GH_STRINGS)
+
 
 class BlockRequest:
     def __init__(self, message):
         self.message = message.lower()
         self.messageList = self.message.split()
-        self.platform = None
-        self.price = None
-        self.grubhub = None
-        self.bumped = None
+        self.data = newBlockRequestData()
+        self.useless = len(self.messageList) < 1
+        self.request = None
+        self.dm = None
+        self.parse()
 
     #if for some dumbass reason we want to print our class :3
     def __str__(self):
-        return f"Message: {self.message}, Platform: {self.platform}, Price: {self.price}"
+
+        if (self.request):
+            return f"Asking price is: {self.data["price"]}, with platform {self.data["platform"]}, and GH status is {self.data["grubhub"]}"
+        else:
+            return f"Message is not a request"
     
+    def parse(self):
+
+        if (self.useless): return
+        
+        for word in self.messageList:
+            if (makeStringNice(word) == "dm"):
+                self.dm = True
+                break
+            if (isGH(word)): 
+                self.data["grubhub"] = True
+                continue
+            temp = representsPlatform(word)
+            if (temp != None):
+                self.data["platform"] = temp
+                continue
+            temp = getDollarAmount(word)
+            if (temp != None):
+                self.data["price"] = temp
+                continue
+
+        self.request = not (self.getPrice() == None and self.getPlatform() == None and self.isGH() == None)
 
     def getPrice(self):
-        # if the price is already defined (not None)
-        if (self.price != None): return self.price
-
-        # havent gotten the price yet, gotta go throgh message and find it
-        for word in self.messageList:
-            # if there is a $ in the price, replace with empty, and return the int
-            if ("$" in word): return float(word.replace("$", ""))
-            # if its just a number return it (praying its the price)
-            if (word.isdigit() or isFloat(word)): return float(word) 
-    
-        # hopefully should not reach here :3
-        return None and str(1/0)
-    
+        return self.data["price"]
     def getPlatform(self):
-        # if already defined (why are you asking twice bro )
-        if (self.platform != None): return self.platform
-
-        for word in self.messageList:
-
-            # if either platform, return BOTH
-            if (word in VALID_VENMO_STRINGS and 
-                word in VALID_ZELLE_STRINGS): return BOTH
-            
-            #if its just in a single one, return just that one
-            if (word in VALID_ZELLE_STRINGS): return ZELLE
-            if (word in VALID_VENMO_STRINGS): return VENMO
-
-        return None
-    
+        return self.data["platform"]
     def isGH(self):
-        # if already initialized
-        if (self.grubhub != None): return self.grubhub
-
-        self.grubhub = False
-        for word in self.messageList:
-            if (word in VALID_GH_STRINGS): 
-                self.grubhub = True
-                break
-        return self.grubhub
+        return self.data["grubhub"]
+    def isRequest(self):
+        return self.request
         
 

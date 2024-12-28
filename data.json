@@ -1,25 +1,31 @@
 {
-    "averagePrice": 200000005.25,
-    "offers": 3,
+    "averagePrice": 7.625,
+    "offers": 16,
     "userData": {
-        "328726215647297537": {
-            "offers": [
-                799999999.0,
-                8.0
-            ],
-            "averageAskingPrice": 400000003.5,
-            "venmo": 1,
-            "zelle": 1,
-            "grubhubRequests": 1
-        },
         "521004149844869151": {
             "offers": [
-                7.0
+                1.0,
+                2.0,
+                3.0,
+                4.0,
+                5.0,
+                6.0,
+                7.0,
+                8.0,
+                9.0,
+                10.0,
+                11.0,
+                12.0,
+                13.0,
+                14.0,
+                15.0,
+                2.0
             ],
-            "averageAskingPrice": 7.0,
-            "venmo": 1,
-            "zelle": 1,
-            "grubhubRequests": 0
+            "averageAskingPrice": 7.625,
+            "venmo": 0,
+            "zelle": 0,
+            "grubhubRequests": 0,
+            "DMAttempts": 0
         }
     }
 }
